@@ -4,7 +4,7 @@ compatibility_date = "2024-11-01"
 compatibility_flags = ["nodejs_compat"]
 
 # KV namespace for storing OAuth state, tokens, and client registrations.
-# Create it with: wrangler kv namespace create OAUTH_KV
+# Create it with: wrangler kv namespace create OAUTH_KV 
 # Then replace the id below with the output ID.
 # For local dev (`wrangler dev`), a local KV store is used automatically.
 [[kv_namespaces]]
