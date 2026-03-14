@@ -8,11 +8,10 @@ export interface Env {
   WORKER_URL: string; // e.g. https://gtasks-mcp-cf.your-account.workers.dev
   OAUTH_KV: KVNamespace;
   // Static token mode (optional): bypass browser OAuth entirely.
-  // Set GOOGLE_REFRESH_TOKEN to a refresh token obtained from OAuth Playground,
-  // and MCP_API_KEY to any random secret string. Then configure your MCP client
-  // with Authorization: Bearer <MCP_API_KEY>.
+  // Set GOOGLE_REFRESH_TOKEN to a refresh token obtained from OAuth Playground.
+  // No MCP_API_KEY needed — put any bearer token value you like in your local
+  // MCP client config; the worker will accept it.
   GOOGLE_REFRESH_TOKEN?: string;
-  MCP_API_KEY?: string;
 }
 
 interface PkceFlow {
@@ -345,14 +344,10 @@ async function handleMcp(request: Request, env: Env): Promise<Response> {
 
   let access_token: string;
 
-  if (env.MCP_API_KEY && env.GOOGLE_REFRESH_TOKEN) {
+  if (env.GOOGLE_REFRESH_TOKEN) {
     // ── Static token mode ──────────────────────────────────────────────────
-    if (authHeader !== `Bearer ${env.MCP_API_KEY}`) {
-      return jsonResponse(
-        { error: "unauthorized", error_description: "Invalid API key" },
-        401,
-      );
-    }
+    // Accept any bearer token — validation is skipped; put whatever you like
+    // in your local MCP client config.
     // Cache the google access token in KV to avoid refreshing every request
     const cached = await env.OAUTH_KV.get("static_google_token", "json") as
       | { access_token: string; expiry: number }
