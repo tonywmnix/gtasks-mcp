@@ -5,7 +5,7 @@ import { createMcpServer } from "./server.js";
 export interface Env {
   GOOGLE_CLIENT_ID: string;
   GOOGLE_CLIENT_SECRET: string;
-  WORKER_URL: string; // e.g. https://gtasks-mcp.your-account.workers.dev
+  WORKER_URL: string; // e.g. https://gtasks-mcp-cf.your-account.workers.dev
   OAUTH_KV: KVNamespace;
 }
 

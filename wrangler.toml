@@ -1,4 +1,4 @@
-name = "gtasks-mcp"
+name = "gtasks-mcp-cf"
 main = "src/worker.ts"
 compatibility_date = "2024-11-01"
 compatibility_flags = ["nodejs_compat"]
@@ -14,7 +14,7 @@ id = "REPLACE_WITH_YOUR_KV_NAMESPACE_ID"
 # Required secrets — set via CLI (never store values here):
 #   wrangler secret put GOOGLE_CLIENT_ID
 #   wrangler secret put GOOGLE_CLIENT_SECRET
-#   wrangler secret put WORKER_URL   # e.g. https://gtasks-mcp.your-account.workers.dev
+#   wrangler secret put WORKER_URL   # e.g. https://gtasks-mcp-cf.your-account.workers.dev
 #
 # For local dev, put these in .dev.vars (gitignored):
 #   GOOGLE_CLIENT_ID=...

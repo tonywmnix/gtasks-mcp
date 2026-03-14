@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# setup.sh — one-shot setup for the gtasks-mcp Cloudflare Worker
+# setup.sh — one-shot setup for the gtasks-mcp-cf Cloudflare Worker
 # Run this once before your first deployment.
 set -euo pipefail
 
@@ -75,11 +75,11 @@ fi
 step "Determining Worker URL"
 ACCOUNT_SUBDOMAIN=$($WRANGLER whoami 2>&1 | grep -oE '[a-z0-9-]+\.workers\.dev' | head -1 || true)
 if [[ -n "$ACCOUNT_SUBDOMAIN" ]]; then
-  WORKER_URL="https://gtasks-mcp.${ACCOUNT_SUBDOMAIN}"
+  WORKER_URL="https://gtasks-mcp-cf.${ACCOUNT_SUBDOMAIN}"
   green "  Detected: $WORKER_URL"
 else
   yellow "  Could not auto-detect your workers.dev subdomain."
-  printf "  Enter your Worker URL (e.g. https://gtasks-mcp.your-account.workers.dev): "
+  printf "  Enter your Worker URL (e.g. https://gtasks-mcp-cf.your-account.workers.dev): "
   read -r WORKER_URL
 fi
 
