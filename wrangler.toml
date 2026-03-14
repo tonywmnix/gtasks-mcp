@@ -9,7 +9,7 @@ compatibility_flags = ["nodejs_compat"]
 # For local dev (`wrangler dev`), a local KV store is used automatically.
 [[kv_namespaces]]
 binding = "OAUTH_KV"
-id = "REPLACE_WITH_YOUR_KV_NAMESPACE_ID"
+id = "7d77f5e84e14402a8016e83ee150b950"
 
 # Required secrets — set via CLI (never store values here):
 #   wrangler secret put GOOGLE_CLIENT_ID
