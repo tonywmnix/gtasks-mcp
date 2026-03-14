@@ -1,0 +1,6 @@
+# Copy this file to .dev.vars and fill in your values for local development.
+# .dev.vars is gitignored — never commit real credentials.
+
+GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=your-client-secret
+WORKER_URL=http://localhost:8787

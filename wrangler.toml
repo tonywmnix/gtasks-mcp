@@ -3,12 +3,20 @@ main = "src/worker.ts"
 compatibility_date = "2024-11-01"
 compatibility_flags = ["nodejs_compat"]
 
-# Set the following secrets before deploying:
+# KV namespace for storing OAuth state, tokens, and client registrations.
+# Create it with: wrangler kv namespace create OAUTH_KV
+# Then replace the id below with the output ID.
+# For local dev (`wrangler dev`), a local KV store is used automatically.
+[[kv_namespaces]]
+binding = "OAUTH_KV"
+id = "REPLACE_WITH_YOUR_KV_NAMESPACE_ID"
+
+# Required secrets — set via CLI (never store values here):
 #   wrangler secret put GOOGLE_CLIENT_ID
 #   wrangler secret put GOOGLE_CLIENT_SECRET
-#   wrangler secret put GOOGLE_ACCESS_TOKEN
-#   wrangler secret put GOOGLE_REFRESH_TOKEN
+#   wrangler secret put WORKER_URL   # e.g. https://gtasks-mcp.your-account.workers.dev
 #
-# To obtain tokens, run the local auth flow first:
-#   bun run start auth
-# Then find the values in .gtasks-server-credentials.json
+# For local dev, put these in .dev.vars (gitignored):
+#   GOOGLE_CLIENT_ID=...
+#   GOOGLE_CLIENT_SECRET=...
+#   WORKER_URL=http://localhost:8787
