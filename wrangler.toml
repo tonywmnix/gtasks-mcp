@@ -16,9 +16,8 @@ id = "7d77f5e84e14402a8016e83ee150b950"
 #   GOOGLE_CLIENT_SECRET
 #   WORKER_URL   # e.g. https://gtasks-mcp-cf.your-account.workers.dev
 #
-# Optional: static token mode (bypasses browser OAuth entirely)
-#   GOOGLE_REFRESH_TOKEN  # refresh token from https://developers.google.com/oauthplayground
-#   (no MCP_API_KEY needed — put any bearer token value you like in your local MCP client config)
+# Optional: pass your Google refresh token directly as the Bearer token in your
+# local MCP client config — no extra Cloudflare secrets needed.
 #
 # For local dev, put these in .dev.vars (gitignored):
 #   GOOGLE_CLIENT_ID=...

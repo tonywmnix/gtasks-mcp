@@ -7,11 +7,6 @@ export interface Env {
   GOOGLE_CLIENT_SECRET: string;
   WORKER_URL: string; // e.g. https://gtasks-mcp-cf.your-account.workers.dev
   OAUTH_KV: KVNamespace;
-  // Static token mode (optional): bypass browser OAuth entirely.
-  // Set GOOGLE_REFRESH_TOKEN to a refresh token obtained from OAuth Playground.
-  // No MCP_API_KEY needed — put any bearer token value you like in your local
-  // MCP client config; the worker will accept it.
-  GOOGLE_REFRESH_TOKEN?: string;
 }
 
 interface PkceFlow {
@@ -344,12 +339,43 @@ async function handleMcp(request: Request, env: Env): Promise<Response> {
 
   let access_token: string;
 
-  if (env.GOOGLE_REFRESH_TOKEN) {
-    // ── Static token mode ──────────────────────────────────────────────────
-    // Accept any bearer token — validation is skipped; put whatever you like
-    // in your local MCP client config.
-    // Cache the google access token in KV to avoid refreshing every request
-    const cached = await env.OAUTH_KV.get("static_google_token", "json") as
+  if (!authHeader?.startsWith("Bearer ")) {
+    return jsonResponse(
+      { error: "unauthorized", error_description: "Missing Bearer token" },
+      401,
+    );
+  }
+
+  const bearer = authHeader.slice(7);
+
+  // Check if this is a KV-backed MCP token (from the browser OAuth flow)
+  const tokenJson = await env.OAUTH_KV.get(`mcp_token:${bearer}`);
+  if (tokenJson) {
+    // ── Dynamic OAuth mode ─────────────────────────────────────────────────
+    let tokenData: McpTokenData = JSON.parse(tokenJson);
+    try {
+      const result = await getValidGoogleToken(env, tokenData);
+      access_token = result.access_token;
+      if (result.updated) {
+        tokenData = result.updated;
+        await env.OAUTH_KV.put(
+          `mcp_token:${bearer}`,
+          JSON.stringify(tokenData),
+          { expirationTtl: 60 * 60 * 24 * 30 },
+        );
+      }
+    } catch {
+      return jsonResponse(
+        { error: "unauthorized", error_description: "Token refresh failed" },
+        401,
+      );
+    }
+  } else {
+    // ── Refresh token mode ─────────────────────────────────────────────────
+    // The bearer token is treated as a Google refresh token directly.
+    // Cache the resulting access token in KV keyed by a hash of the refresh token.
+    const cacheKey = `rt_cache:${await sha256Base64Url(bearer)}`;
+    const cached = await env.OAUTH_KV.get(cacheKey, "json") as
       | { access_token: string; expiry: number }
       | null;
     if (cached && Date.now() < cached.expiry - 5 * 60 * 1000) {
@@ -359,7 +385,7 @@ async function handleMcp(request: Request, env: Env): Promise<Response> {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: new URLSearchParams({
-          refresh_token: env.GOOGLE_REFRESH_TOKEN,
+          refresh_token: bearer,
           client_id: env.GOOGLE_CLIENT_ID,
           client_secret: env.GOOGLE_CLIENT_SECRET,
           grant_type: "refresh_token",
@@ -367,52 +393,16 @@ async function handleMcp(request: Request, env: Env): Promise<Response> {
       });
       if (!res.ok) {
         return jsonResponse(
-          { error: "unauthorized", error_description: "Google token refresh failed" },
+          { error: "unauthorized", error_description: "Invalid refresh token" },
           401,
         );
       }
       const data = (await res.json()) as { access_token: string; expires_in: number };
       access_token = data.access_token;
       await env.OAUTH_KV.put(
-        "static_google_token",
+        cacheKey,
         JSON.stringify({ access_token, expiry: Date.now() + data.expires_in * 1000 }),
         { expirationTtl: data.expires_in },
-      );
-    }
-  } else {
-    // ── Dynamic OAuth mode ─────────────────────────────────────────────────
-    if (!authHeader?.startsWith("Bearer ")) {
-      return jsonResponse(
-        { error: "unauthorized", error_description: "Missing Bearer token" },
-        401,
-      );
-    }
-
-    const mcp_token = authHeader.slice(7);
-    const tokenJson = await env.OAUTH_KV.get(`mcp_token:${mcp_token}`);
-    if (!tokenJson) {
-      return jsonResponse(
-        { error: "unauthorized", error_description: "Invalid or expired token" },
-        401,
-      );
-    }
-
-    let tokenData: McpTokenData = JSON.parse(tokenJson);
-    try {
-      const result = await getValidGoogleToken(env, tokenData);
-      access_token = result.access_token;
-      if (result.updated) {
-        tokenData = result.updated;
-        await env.OAUTH_KV.put(
-          `mcp_token:${mcp_token}`,
-          JSON.stringify(tokenData),
-          { expirationTtl: 60 * 60 * 24 * 30 },
-        );
-      }
-    } catch {
-      return jsonResponse(
-        { error: "unauthorized", error_description: "Token refresh failed" },
-        401,
       );
     }
   }
