@@ -9,14 +9,11 @@ compatibility_flags = ["nodejs_compat"]
 # For local dev (`wrangler dev`), a local KV store is used automatically.
 [[kv_namespaces]]
 binding = "OAUTH_KV"
-id = "REPLACE_WITH_YOUR_KV_NAMESPACE_ID"
+id = "7d77f5e84e14402a8016e83ee150b950"
+
+[vars]
+WORKER_URL = "https://gtasks-mcp-cf.tonywmnix.workers.dev"
 
 # Required secrets — set via CLI (never store values here):
 #   wrangler secret put GOOGLE_CLIENT_ID
 #   wrangler secret put GOOGLE_CLIENT_SECRET
-#   wrangler secret put WORKER_URL   # e.g. https://gtasks-mcp-cf.your-account.workers.dev
-#
-# For local dev, put these in .dev.vars (gitignored):
-#   GOOGLE_CLIENT_ID=...
-#   GOOGLE_CLIENT_SECRET=...
-#   WORKER_URL=http://localhost:8787
