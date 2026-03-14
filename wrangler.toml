@@ -1,0 +1,14 @@
+name = "gtasks-mcp"
+main = "src/worker.ts"
+compatibility_date = "2024-11-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Set the following secrets before deploying:
+#   wrangler secret put GOOGLE_CLIENT_ID
+#   wrangler secret put GOOGLE_CLIENT_SECRET
+#   wrangler secret put GOOGLE_ACCESS_TOKEN
+#   wrangler secret put GOOGLE_REFRESH_TOKEN
+#
+# To obtain tokens, run the local auth flow first:
+#   bun run start auth
+# Then find the values in .gtasks-server-credentials.json

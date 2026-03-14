@@ -17,14 +17,18 @@
     "build": "bun build ./src/index.ts --outdir ./dist --target bun",
     "dev": "bun --watch src/index.ts",
     "start": "bun run src/index.ts",
-    "test": "bun test"
+    "test": "bun test",
+    "worker:dev": "wrangler dev",
+    "worker:deploy": "wrangler deploy"
   },
   "dependencies": {
     "@google-cloud/local-auth": "^3.0.1",
-    "@modelcontextprotocol/sdk": "1.0.1",
+    "@modelcontextprotocol/sdk": "^1.10.0",
     "googleapis": "^144.0.0"
   },
   "devDependencies": {
-    "bun-types": "^1.2.5"
+    "@cloudflare/workers-types": "^4.0.0",
+    "bun-types": "^1.2.5",
+    "wrangler": "^3.0.0"
   }
 }
