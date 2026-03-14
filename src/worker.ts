@@ -68,6 +68,18 @@ async function sha256Base64Url(input: string): Promise<string> {
     .replace(/=/g, "");
 }
 
+// ── OAuth 2.0 Protected Resource Metadata (RFC 9728) ─────────────────────────
+
+function handleProtectedResource(env: Env): Response {
+  const base = env.WORKER_URL;
+  return jsonResponse({
+    resource: base,
+    authorization_servers: [base],
+    bearer_methods_supported: ["header"],
+    scopes_supported: ["tasks"],
+  });
+}
+
 // ── OAuth 2.0 Authorization Server Metadata (RFC 8414) ──────────────────────
 
 function handleMetadata(env: Env): Response {
@@ -336,19 +348,20 @@ async function getValidGoogleToken(
 
 async function handleMcp(request: Request, env: Env): Promise<Response> {
   const authHeader = request.headers.get("Authorization");
+  const wwwAuthenticate = `Bearer realm="${env.WORKER_URL}", resource_metadata="${env.WORKER_URL}/.well-known/oauth-protected-resource"`;
   if (!authHeader?.startsWith("Bearer ")) {
-    return jsonResponse(
-      { error: "unauthorized", error_description: "Missing Bearer token" },
-      401,
+    return new Response(
+      JSON.stringify({ error: "unauthorized", error_description: "Missing Bearer token" }),
+      { status: 401, headers: { "Content-Type": "application/json", "WWW-Authenticate": wwwAuthenticate, ...CORS_HEADERS } },
     );
   }
 
   const mcp_token = authHeader.slice(7);
   const tokenJson = await env.OAUTH_KV.get(`mcp_token:${mcp_token}`);
   if (!tokenJson) {
-    return jsonResponse(
-      { error: "unauthorized", error_description: "Invalid or expired token" },
-      401,
+    return new Response(
+      JSON.stringify({ error: "unauthorized", error_description: "Invalid or expired token" }),
+      { status: 401, headers: { "Content-Type": "application/json", "WWW-Authenticate": wwwAuthenticate, ...CORS_HEADERS } },
     );
   }
 
@@ -395,6 +408,12 @@ export default {
 
     const { pathname } = new URL(request.url);
 
+    if (
+      pathname === "/.well-known/oauth-protected-resource" ||
+      pathname === "/.well-known/oauth-protected-resource/mcp"
+    ) {
+      return handleProtectedResource(env);
+    }
     if (pathname === "/.well-known/oauth-authorization-server") {
       return withCors(handleMetadata(env));
     }
