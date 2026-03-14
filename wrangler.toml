@@ -11,12 +11,18 @@ compatibility_flags = ["nodejs_compat"]
 binding = "OAUTH_KV"
 id = "7d77f5e84e14402a8016e83ee150b950"
 
-# Required secrets — set via CLI (never store values here):
-#   wrangler secret put GOOGLE_CLIENT_ID
-#   wrangler secret put GOOGLE_CLIENT_SECRET
-#   wrangler secret put WORKER_URL   # e.g. https://gtasks-mcp-cf.your-account.workers.dev
+# Required secrets — set via Cloudflare dashboard (Variables and Secrets):
+#   GOOGLE_CLIENT_ID
+#   GOOGLE_CLIENT_SECRET
+#   WORKER_URL   # e.g. https://gtasks-mcp-cf.your-account.workers.dev
+#
+# Optional: static token mode (bypasses browser OAuth entirely)
+#   GOOGLE_REFRESH_TOKEN  # refresh token from https://developers.google.com/oauthplayground
+#   MCP_API_KEY           # any random secret string — used as the Bearer token in your MCP client config
 #
 # For local dev, put these in .dev.vars (gitignored):
 #   GOOGLE_CLIENT_ID=...
 #   GOOGLE_CLIENT_SECRET=...
 #   WORKER_URL=http://localhost:8787
+#   GOOGLE_REFRESH_TOKEN=...
+#   MCP_API_KEY=...
