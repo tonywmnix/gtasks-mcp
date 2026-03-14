@@ -19,8 +19,7 @@
     "start": "bun run src/index.ts",
     "test": "bun test",
     "worker:dev": "wrangler dev",
-    "worker:setup": "bash scripts/setup.sh",
-    "worker:deploy": "bash scripts/setup.sh"
+    "worker:deploy": "wrangler deploy"
   },
   "dependencies": {
     "@google-cloud/local-auth": "^3.0.1",
